@@ -1,0 +1,4 @@
+github.com/eduncan911/podcast v1.3.0 h1:lVCar1J39mMNWR2SbGzPjeUbCKEkQ6/pt/7beQqK6fk=
+github.com/eduncan911/podcast v1.3.0/go.mod h1:C7Q04QZtv7LW/1X67mc1zwsktpZ68kbxsUS3CYWniJg=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
