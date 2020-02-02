@@ -34,6 +34,7 @@ var (
 	flagAddr              = flag.String("addr", EnvDef("ADDR", ":8080"), "address that the application will bind to")
 	flagName              = flag.String("name", EnvDef("PODCAST_NAME", "Unnamed Podcast"), "name of the podcast")
 	flagDescription       = flag.String("description", EnvDef("PODCAST_DESCRIPTION", "No Description"), "description of the podcast")
+	flagHelpText          = flag.String("help-text", "", "help text that is shown at the bottom of the homepage")
 )
 
 func main() {
@@ -71,6 +72,6 @@ func main() {
 		Endpoint: google.Endpoint,
 	}
 
-	s := newServer(*flagBaseURL, *flagName, *flagDescription, pp.NewBackend(session, *flagBackendBucket), oauth, db)
+	s := newServer(*flagBaseURL, *flagName, *flagDescription, *flagHelpText, pp.NewBackend(session, *flagBackendBucket), oauth, db)
 	log.Fatal(s.start(":8080", 15*time.Second))
 }

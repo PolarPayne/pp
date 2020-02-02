@@ -1,12 +1,11 @@
 package main
 
-import "math/rand"
-
-import "fmt"
-
-import "encoding/base64"
-
-import "log"
+import (
+	"math/rand"
+	"fmt"
+	"encoding/base64"
+	"log"
+)
 
 const secretSize = 36
 

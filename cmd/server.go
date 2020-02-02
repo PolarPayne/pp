@@ -24,6 +24,7 @@ type server struct {
 	baseURL     string
 	name        string
 	description string
+	helpText    string
 	backend     *pp.Backend
 	oauth       *oauth2.Config
 	db          *sql.DB
@@ -32,11 +33,12 @@ type server struct {
 	podcastsMutex sync.RWMutex
 }
 
-func newServer(baseURL, name, description string, backend *pp.Backend, oauth *oauth2.Config, db *sql.DB) *server {
+func newServer(baseURL, name, description, helpText string, backend *pp.Backend, oauth *oauth2.Config, db *sql.DB) *server {
 	out := new(server)
 	out.baseURL = baseURL
 	out.name = name
 	out.description = description
+	out.helpText = helpText
 	out.backend = backend
 	out.oauth = oauth
 	out.db = db

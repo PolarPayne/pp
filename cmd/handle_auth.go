@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-
-	"github.com/davecgh/go-spew/spew"
 )
 
 type googleUserinfo struct {
@@ -31,7 +29,6 @@ func (s *server) handleAuth() http.HandlerFunc {
 			s.handleError(w, r, err)
 			return
 		}
-		spew.Dump(tok)
 
 		client := s.oauth.Client(r.Context(), tok)
 		resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
