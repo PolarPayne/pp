@@ -24,7 +24,7 @@ func EnvDef(key, def string) string {
 }
 
 var (
-	flagDBInit            = flag.Bool("db-init", false, "run create table and migrations on the database before starting")
+	flagDBNoInit          = flag.Bool("db-no-init", false, "do not run create table and migrations on the database before starting")
 	flagDB                = flag.String("db-engine", EnvDef("DB_ENGINE", "postgres"), "db engine that will be used (currently only postgres is supported)")
 	flagDBConn            = flag.String("db-conn", EnvDef("DB_CONN", "postgres://pp:secret@localhost/pp?sslmode=disable"), "connection string to connect to db")
 	flagOAuthClientID     = flag.String("oauth-client-id", os.Getenv("OAUTH_CLIENT_ID"), "OAuth2 Client ID that is used for Google SSO")
@@ -34,7 +34,7 @@ var (
 	flagAddr              = flag.String("addr", EnvDef("ADDR", ":8080"), "address that the application will bind to")
 	flagName              = flag.String("name", EnvDef("PODCAST_NAME", "Unnamed Podcast"), "name of the podcast")
 	flagDescription       = flag.String("description", EnvDef("PODCAST_DESCRIPTION", "No Description"), "description of the podcast")
-	flagHelpText          = flag.String("help-text", "", "help text that is shown at the bottom of the homepage")
+	flagHelpText          = flag.String("help-text", os.Getenv("HELP_TEXT"), "help text that is shown at the bottom of the homepage")
 )
 
 func main() {
@@ -49,7 +49,7 @@ func main() {
 		log.Fatalf("failed to open DB connection: %v", err)
 	}
 
-	if *flagDBInit {
+	if !*flagDBNoInit {
 		_, err := db.Exec(`CREATE TABLE IF NOT EXISTS users (
 			user_id    TEXT UNIQUE NOT NULL,
 			secret     TEXT UNIQUE NOT NULL,

@@ -2,6 +2,7 @@ package pp
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -19,17 +20,18 @@ func splitTitle(name string) (time.Time, string, error) {
 
 	split := strings.SplitN(name, " ", 2)
 	if len(split) != 2 {
-		return t, title, errors.New("")
+		return t, title, fmt.Errorf("can't split name %q to date and title parts", name)
 	}
 
-	t, err = time.Parse("2006-01-02", split[0])
+	published := split[0]
+	t, err = time.Parse("2006-01-02", published)
 	if err != nil {
-		return t, title, errors.New("invalid date format (expected YYYY-MM-DD)")
+		return t, title, fmt.Errorf("invalid date format (expected YYYY-MM-DD): %v", published)
 	}
 
 	title = split[1]
 	if !strings.HasSuffix(title, ".mp3") {
-		return t, title, errors.New("invalid title to end with .mp3")
+		return t, title, fmt.Errorf("invalid title (expected it to end with .mp3): %v", title)
 	}
 
 	return t, title[:len(title)-len(".mp3")], nil
@@ -45,7 +47,7 @@ type Podcast struct {
 
 func newPodcast(backend *Backend, key string, size *int64) (Podcast, error) {
 	if size == nil {
-		return Podcast{}, errors.New("invalid Podcast: size is nil")
+		return Podcast{}, errors.New("size must be set: size is nil")
 	}
 
 	published, title, err := splitTitle(key)
