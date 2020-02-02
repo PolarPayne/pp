@@ -11,8 +11,19 @@ func (s *server) handlePodcast() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		secret, name := q.Get("s"), q.Get("n")
-		log.Printf("podcast secret=%q name=%q", secret, name)
 
+		// check the secret is valid
+		ok, err := s.validSecret(secret)
+		if err != nil {
+			s.handleError(w, r, err)
+			return
+		}
+		if !ok {
+			w.WriteHeader(403)
+			return
+		}
+
+		// get podcast and stream it to the client
 		p, err := s.backend.GetPodcast(name)
 		if err != nil {
 			s.handleError(w, r, err)
@@ -26,13 +37,11 @@ func (s *server) handlePodcast() http.HandlerFunc {
 		}
 		defer pc.Close()
 
-		size := p.Size()
-
 		w.Header().Add("Content-Type", "audio/mpeg")
-		w.Header().Add("Content-Length", strconv.FormatInt(size, 10))
+		w.Header().Add("Content-Length", strconv.FormatInt(p.Size, 10))
 		n, err := io.Copy(w, pc)
 		if err != nil {
-			log.Printf("failed to copy content to response (%v of %v bytes copied): %v", n, size, err)
+			log.Printf("failed to copy content to response (%v of %v bytes copied): %v", n, p.Size, err)
 		}
 	}
 }

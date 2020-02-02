@@ -1,13 +1,17 @@
 package main
 
 import (
-	"bytes"
-	"io"
+	"encoding/json"
 	"log"
 	"net/http"
 
 	"github.com/davecgh/go-spew/spew"
 )
+
+type googleUserinfo struct {
+	ID    string
+	Email string
+}
 
 func (s *server) handleAuth() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -38,15 +42,24 @@ func (s *server) handleAuth() http.HandlerFunc {
 		}
 		defer resp.Body.Close()
 
-		res := new(bytes.Buffer)
-		_, err = io.Copy(res, resp.Body)
+		jDecoder := json.NewDecoder(resp.Body)
+		userinfo := googleUserinfo{}
+		err = jDecoder.Decode(&userinfo)
 		if err != nil {
 			s.handleError(w, r, err)
+			log.Panicf("failed to parse JSON returned by Google: %v", err)
 			return
 		}
-		spew.Dump(res)
 
-		http.SetCookie(w, &http.Cookie{Name: "podcast_session", Value: "test"})
+		email := userinfo.Email
+		secret, err := s.createUser(email)
+		if err != nil {
+			s.handleError(w, r, err)
+			log.Panicf("failed to create a user: %v", err)
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{Name: "podcast_session", Value: secret})
 		http.Redirect(w, r, "/", 302)
 	}
 }

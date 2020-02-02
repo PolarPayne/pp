@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"sync"
@@ -23,20 +24,22 @@ type server struct {
 	baseURL     string
 	name        string
 	description string
-	backend     pp.Backend
+	backend     *pp.Backend
 	oauth       *oauth2.Config
+	db          *sql.DB
 
 	podcasts      []pp.Podcast
 	podcastsMutex sync.RWMutex
 }
 
-func newServer(baseURL, name, description string, backend pp.Backend, oauth *oauth2.Config) *server {
+func newServer(baseURL, name, description string, backend *pp.Backend, oauth *oauth2.Config, db *sql.DB) *server {
 	out := new(server)
 	out.baseURL = baseURL
 	out.name = name
 	out.description = description
 	out.backend = backend
 	out.oauth = oauth
+	out.db = db
 
 	out.mux = http.NewServeMux()
 	out.mux.HandleFunc("/", logHandle(out.handleHome()))

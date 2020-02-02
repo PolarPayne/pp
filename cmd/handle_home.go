@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 )
 
 func (s *server) handleHome() http.HandlerFunc {
@@ -16,7 +18,11 @@ func (s *server) handleHome() http.HandlerFunc {
 			return
 		}
 
-		session := c.Value
-		w.Write([]byte(session))
+		q := url.Values{}
+		q.Set("s", c.Value)
+
+		url := s.baseURL + "/feed?" + q.Encode()
+
+		fmt.Fprintf(w, "Your personal RSS feed URL is %v\nAccesses to this URL are tracked, DO NOT SHARE THE URL WITH ANYONE", url)
 	}
 }

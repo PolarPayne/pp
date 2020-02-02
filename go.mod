@@ -7,7 +7,8 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/eduncan911/podcast v1.3.0
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
-	github.com/lib/pq v1.3.0 // indirect
+	github.com/lib/pq v1.3.0
+	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa // indirect
