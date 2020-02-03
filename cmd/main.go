@@ -79,5 +79,5 @@ func main() {
 	}
 
 	s := newServer(*flagBaseURL, *flagName, *flagDescription, *flagHelpText, pp.NewBackend(session, *flagBackendBucket), oauth, db)
-	log.Fatal(s.start(":8080", 15*time.Second))
+	log.Fatal(s.start(*flagAddr, 5*time.Minute))
 }
