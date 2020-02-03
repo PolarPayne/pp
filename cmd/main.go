@@ -44,6 +44,12 @@ func main() {
 		log.Fatalf("base-url must not end with a '/' (it was %q)", *flagBaseURL)
 	}
 
+	herokuDatabaseURL := os.Getenv("DATABASE_URL")
+	if herokuDatabaseURL != "" {
+		log.Print("DATABASE_URL was set (we are likely running in Heroku), overriding db-conn flag with it")
+		*flagDBConn = herokuDatabaseURL
+	}
+
 	db, err := sql.Open(*flagDB, *flagDBConn)
 	if err != nil {
 		log.Fatalf("failed to open DB connection: %v", err)
