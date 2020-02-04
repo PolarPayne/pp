@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
+	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -58,27 +61,69 @@ func newPodcast(backend *Backend, key string, size *int64) (Podcast, error) {
 	return Podcast{backend, key, *size, published, title}, nil
 }
 
-func (p *Podcast) Open() (io.ReadCloser, error) {
-	obj, err := p.backend.s3.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(p.backend.bucket),
-		Key:    aws.String(p.Key),
-	})
-	if err != nil {
-		return nil, err
+func (p *Podcast) HandleHTTP(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Add("Content-Type", "audio/mpeg")
+	w.Header().Add("Accept-Ranges", "bytes")
+
+	rangeHeader := r.Header.Get("Range")
+	if rangeHeader != "" {
+		return p.handleRangeHeader(w, r, rangeHeader)
 	}
 
-	return obj.Body, nil
+	return p.handleNormal(w, r)
 }
 
-func (p *Podcast) OpenRange(rangeHeader string) (io.ReadCloser, int64, string, error) {
+func (p *Podcast) handleRangeHeader(w http.ResponseWriter, r *http.Request, rangeHeader string) error {
+	log.Printf("request with Range header: %v", rangeHeader)
+
 	obj, err := p.backend.s3.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(p.backend.bucket),
 		Key:    aws.String(p.Key),
 		Range:  aws.String(rangeHeader),
 	})
 	if err != nil {
-		return nil, 0, "", err
+		return fmt.Errorf("failed to get object from S3 w/ Range header: %v", err)
+	}
+	defer obj.Body.Close()
+
+	contentLength, contentRange := obj.ContentLength, obj.ContentRange
+	if contentLength == nil || contentRange == nil {
+		return fmt.Errorf("S3 returned nil Content-Length (=%q) and/or Content-Range (=%q)", contentLength, contentRange)
 	}
 
-	return obj.Body, *obj.ContentLength, *obj.ContentRange, nil
+	w.Header().Set("Content-Length", strconv.FormatInt(*contentLength, 10))
+	w.Header().Set("Content-Range", *contentRange)
+
+	w.WriteHeader(206)
+	n, err := io.Copy(w, obj.Body)
+	if err != nil {
+		return fmt.Errorf("failed to copy %v bytes of content to response: %v", n, err)
+	}
+
+	return nil
+}
+
+func (p *Podcast) handleNormal(w http.ResponseWriter, r *http.Request) error {
+	obj, err := p.backend.s3.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(p.backend.bucket),
+		Key:    aws.String(p.Key),
+	})
+	if err != nil {
+		return fmt.Errorf("failed get object from S3: %v", err)
+	}
+
+	defer obj.Body.Close()
+
+	if obj.ContentLength == nil {
+		return fmt.Errorf("S3 returned nil Content-Length (=%q)", obj.ContentLength)
+	}
+
+	w.Header().Add("Content-Length", strconv.FormatInt(*obj.ContentLength, 10))
+
+	n, err := io.Copy(w, obj.Body)
+	if err != nil {
+		return fmt.Errorf("failed to copy content to response (%v of %v bytes copied): %v", n, p.Size, err)
+	}
+
+	return nil
 }
