@@ -25,7 +25,7 @@ func envDefBool(key string, def bool) bool {
 	if !ok {
 		return false
 	}
-	return !(value == "" && value == "0")
+	return !(value == "" || value == "0")
 }
 
 var (
