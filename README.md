@@ -2,9 +2,6 @@
 Private Podcast is a simple application to serve podcast episodes from a S3 bucket with Google login.
 
 ## TODO
-* write to storage whenever a secret is being used
-
-### Features
 * support revoking of secrets
 * support uploading of new episodes from the homepage
 * add simple analytics from the access logs
