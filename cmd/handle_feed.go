@@ -31,6 +31,11 @@ func (s *server) handleFeed() http.HandlerFunc {
 
 		feed := podcast.New(s.name, s.baseURL, s.description, nil, &now)
 		for _, p := range s.getPodcasts() {
+			if now.Before(p.Published) {
+				log.Printf("skipping podcast with published date in the future title=%q published=%v", p.Title, p.Published)
+				continue
+			}
+
 			q := url.Values{}
 			q.Set("s", secret)
 			q.Set("n", p.Key)
