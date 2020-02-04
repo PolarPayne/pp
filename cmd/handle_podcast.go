@@ -20,13 +20,18 @@ func (s *server) handlePodcast() http.HandlerFunc {
 			return
 		}
 
-		// get podcast and stream it to the client
-		p, err := s.backend.GetPodcast(name)
-		if err != nil {
-			s.handleError(w, r, err)
-			return
+		for _, podcast := range s.getPodcasts() {
+			if podcast.Key == name {
+				err = podcast.HandleHTTP(w, r)
+				if err != nil {
+					s.handleError(w, r, err)
+				}
+				return
+			}
 		}
 
-		err = p.HandleHTTP(w, r)
+		// 403 would already be written if the user doesn't have access
+		// therefore we aren't leaking any data
+		w.WriteHeader(404)
 	}
 }

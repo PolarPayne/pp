@@ -142,6 +142,11 @@ func (s *server) start(addr string, updateInterval time.Duration) error {
 	return http.ListenAndServe(addr, s.mux)
 }
 
+// handleError writes the error message to the log and then sends a 500 status code
+// this can (and does) generate additional log messages because there is no way
+// to check if WriteHeader has already been called.
+// These log messages look like `http: superfluous response.WriteHeader call from`,
+// and are completely harmless.
 func (s *server) handleError(w http.ResponseWriter, r *http.Request, err error) {
 	log.Printf("internal server error when handling a request to %q: %v", r.URL.EscapedPath(), err)
 	w.WriteHeader(500)
