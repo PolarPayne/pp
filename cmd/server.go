@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -10,13 +11,6 @@ import (
 	"github.com/polarpayne/pp"
 	"golang.org/x/oauth2"
 )
-
-func logHandle(h http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("request: url=%q", r.URL)
-		h(w, r)
-	}
-}
 
 type server struct {
 	mux *http.ServeMux
@@ -44,12 +38,31 @@ func newServer(baseURL, name, description, helpText string, backend *pp.Backend,
 	out.db = db
 
 	out.mux = http.NewServeMux()
-	out.mux.HandleFunc("/", logHandle(out.handleHome()))
-	out.mux.HandleFunc("/auth", logHandle(out.handleAuth()))
-	out.mux.HandleFunc("/feed", logHandle(out.handleFeed()))
-	out.mux.HandleFunc("/podcast", logHandle(out.handlePodcast()))
+	out.mux.HandleFunc("/", out.handleHome())
+	out.mux.HandleFunc("/auth", out.handleAuth())
+	out.mux.HandleFunc("/feed", out.handleFeed())
+	out.mux.HandleFunc("/podcast", out.handlePodcast())
+
+	out.mux.HandleFunc("/logo", out.handleLogo())
+	out.mux.HandleFunc("/favicon.ico", out.handleLogo())
 
 	return out
+}
+
+func (s *server) handleLogo() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logo, err := s.backend.GetLogo()
+		if err != nil {
+			s.handleError(w, r, err)
+			return
+		}
+		defer logo.Close()
+
+		_, err = io.Copy(w, logo)
+		if err != nil {
+			log.Printf("failed to write logo to response: %v", err)
+		}
+	}
 }
 
 func (s *server) updatePodcasts() error {

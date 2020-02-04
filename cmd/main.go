@@ -31,6 +31,7 @@ var (
 	flagOAuthClientID     = flag.String("oauth-client-id", os.Getenv("OAUTH_CLIENT_ID"), "OAuth2 Client ID that is used for Google SSO")
 	flagOAuthClientSecret = flag.String("oauth-client-secret", os.Getenv("OAUTH_CLIENT_SECRET"), "OAuth2 Client Secret that is used for Google SSO")
 	flagBackendBucket     = flag.String("backend-bucket", os.Getenv("BACKEND_BUCKET"), "name of the bucket that stores the podcasts")
+	flagBackendLogo       = flag.String("backend-logo", EnvDef("BACKEND_LOGO", "logo.png"), "key of the logo within the backend bucket")
 	flagBaseURL           = flag.String("base-url", EnvDef("BASE_URL", "http://localhost:8080"), "base URL of the application, used to generate correct URLs")
 	flagHost              = flag.String("host", EnvDef("HOST", "localhost"), "address the application should bind to")
 	flagPort              = flag.String("port", EnvDef("PORT", "8080"), "port that the application will listen to")
@@ -82,6 +83,6 @@ func main() {
 
 	addr := net.JoinHostPort(*flagHost, *flagPort)
 
-	s := newServer(*flagBaseURL, *flagName, *flagDescription, *flagHelpText, pp.NewBackend(session, *flagBackendBucket), oauth, db)
+	s := newServer(*flagBaseURL, *flagName, *flagDescription, *flagHelpText, pp.NewBackend(session, *flagBackendBucket, *flagBackendLogo), oauth, db)
 	log.Fatal(s.start(addr, 5*time.Minute))
 }

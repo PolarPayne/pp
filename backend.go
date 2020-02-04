@@ -2,6 +2,7 @@ package pp
 
 import (
 	"errors"
+	"io"
 	"log"
 	"strings"
 
@@ -13,14 +14,28 @@ import (
 type Backend struct {
 	s3     *s3.S3
 	bucket string
+	logo   string
 }
 
-func NewBackend(sess *session.Session, bucket string) *Backend {
+func NewBackend(sess *session.Session, bucket string, logo string) *Backend {
 	out := new(Backend)
 	out.s3 = s3.New(sess)
 	out.bucket = bucket
+	out.logo = logo
 
 	return out
+}
+
+func (b *Backend) GetLogo() (io.ReadCloser, error) {
+	p, err := b.s3.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(b.bucket),
+		Key:    aws.String(b.logo),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return p.Body, nil
 }
 
 func (b *Backend) ListPodcasts() ([]Podcast, error) {
