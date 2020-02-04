@@ -107,6 +107,6 @@ func (s *server) start(addr string, updateInterval time.Duration) error {
 }
 
 func (s *server) handleError(w http.ResponseWriter, r *http.Request, err error) {
-	log.Printf("internal server error when handling a request: %v", r.URL.EscapedPath())
+	log.Printf("internal server error when handling a request to %q: %v", r.URL.EscapedPath(), err)
 	w.WriteHeader(500)
 }

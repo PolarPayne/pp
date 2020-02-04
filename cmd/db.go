@@ -1,10 +1,11 @@
 package main
 
 import (
-	"math/rand"
-	"fmt"
+	"database/sql"
 	"encoding/base64"
+	"fmt"
 	"log"
+	"math/rand"
 )
 
 const secretSize = 36
@@ -44,6 +45,10 @@ func (s *server) validSecret(secret string) (bool, error) {
 
 	err := s.db.QueryRow(`SELECT user_id FROM users WHERE secret = $1`, secret).Scan(&userID)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			log.Printf("invalid secret %q", secret)
+			return false, nil
+		}
 		return false, err
 	}
 
