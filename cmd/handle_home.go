@@ -26,6 +26,10 @@ var tmpl = `
 			background: #ccc;
 		}
 
+		audio {
+			width: 100%;
+		}
+
 		.content {
 			background: white;
 			max-width: 80em;
@@ -52,13 +56,13 @@ var tmpl = `
 <body>
 	<div class="content">
 
-	{{ if .NotLoggedIn }}
+{{ if .NotLoggedIn }}
 	<a href="/?action=login">login</a>
 	{{ else }}
 	<a href="/?action=logout">logout</a>
-	{{ end }}
+{{ end }}
 
-	{{ if not .NotLoggedIn }}
+{{ if not .NotLoggedIn }}
 	<h1>{{ .Name }}</h1>
 	<p class="description">{{ .Description }}</p>
 
@@ -66,13 +70,27 @@ var tmpl = `
 	<p class="url copytext">{{ .FeedURL }}</p>
 	<button onclick="copyText('.copytext')">copy link</button>
 	<p>This URL should work with pretty much any podcast application that supports custom URLs (at least <a href="https://www.videolan.org/vlc/">VLC</a> and <a href="https://overcast.fm/">Overcast</a> are known to work), just <span class="alert">DON'T SHARE IT</span>.</p>
+
+	<hr>
+
+	<h2>Episodes</h2>
+
+	{{ range .Podcasts }}
+	<div class="podcast">
+		<h3>{{ .Title }} ({{ .Published }})</h3>
+		<audio controls src="{{ .URL }}">Your browser does not support the <code>audio</code> element.</audio>
+	</div>
 	{{ end }}
+
+{{ end }}
+
+	<hr>
 
 	<p>If you're having technical problems please
 	{{ if .Help }}
 		{{ .Help }}
 	{{ else }}
-		<a href="//github.com/polarpayne/pp">github.com/polarpayne/pp</a>.</p>
+		see <a href="//github.com/polarpayne/pp">github.com/polarpayne/pp</a>.</p>
 	{{ end }}
 	</p>
 
@@ -126,11 +144,25 @@ func (s *server) handleHome() http.HandlerFunc {
 		q.Set("s", secret)
 		feedURL := s.baseURL + "/feed?" + q.Encode()
 
+		type p struct {
+			Title, URL string
+			Published  string
+		}
+		podcasts := make([]p, 0)
+		for _, podcast := range s.getPodcasts() {
+			q = url.Values{}
+			q.Set("s", secret)
+			q.Set("n", podcast.Key)
+			pURL := s.baseURL + "/podcast?" + q.Encode()
+			podcasts = append(podcasts, p{podcast.Title, pURL, podcast.Published.Format("2006-01-02")})
+		}
+
 		err = tmplCompiled.Execute(w, struct {
 			Secret, FeedURL         string
 			NotLoggedIn             bool
 			Name, Description, Help string
-		}{secret, feedURL, sessionCookieNotSet, s.name, s.description, s.helpText})
+			Podcasts                []p
+		}{secret, feedURL, sessionCookieNotSet, s.name, s.description, s.helpText, podcasts})
 		if err != nil {
 			log.Printf("failed to render home: %v", err)
 		}

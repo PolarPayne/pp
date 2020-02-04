@@ -33,11 +33,6 @@ func (s *server) handleFeed() http.HandlerFunc {
 		feed.IBlock = "yes"
 		feed.Image = &podcast.Image{URL: s.baseURL + "/logo"}
 		for _, p := range s.getPodcasts() {
-			if now.Before(p.Published) {
-				log.Printf("skipping podcast with published date in the future title=%q published=%v", p.Title, p.Published)
-				continue
-			}
-
 			q := url.Values{}
 			q.Set("s", secret)
 			q.Set("n", p.Key)

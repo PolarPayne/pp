@@ -5,12 +5,24 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sort"
 	"sync"
 	"time"
 
 	"github.com/polarpayne/pp"
 	"golang.org/x/oauth2"
 )
+
+type podcastList []pp.Podcast
+
+func (a podcastList) Len() int      { return len(a) }
+func (a podcastList) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a podcastList) Less(i, j int) bool {
+	if a[i].Published.Equal(a[j].Published) {
+		return a[i].Title < a[i].Title
+	}
+	return a[i].Published.Before(a[j].Published)
+}
 
 type server struct {
 	mux *http.ServeMux
@@ -23,7 +35,7 @@ type server struct {
 	oauth       *oauth2.Config
 	db          *sql.DB
 
-	podcasts      []pp.Podcast
+	podcasts      podcastList
 	podcastsMutex sync.RWMutex
 }
 
@@ -77,7 +89,18 @@ func (s *server) updatePodcasts() error {
 	defer s.podcastsMutex.Unlock()
 
 	log.Printf("updating podcasts: found %v podcasts", len(ps))
-	s.podcasts = ps
+	s.podcasts = make([]pp.Podcast, 0, len(ps))
+
+	now := time.Now()
+	for _, p := range ps {
+		if now.Before(p.Published) {
+			log.Printf("updating podcasts: skipping podcast with published date in the future title=%q published=%v", p.Title, p.Published)
+			continue
+		}
+		s.podcasts = append(s.podcasts, p)
+	}
+
+	sort.Sort(s.podcasts)
 
 	return nil
 }
