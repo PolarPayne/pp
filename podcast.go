@@ -69,3 +69,16 @@ func (p *Podcast) Open() (io.ReadCloser, error) {
 
 	return obj.Body, nil
 }
+
+func (p *Podcast) OpenRange(rangeHeader string) (io.ReadCloser, int64, string, error) {
+	obj, err := p.backend.s3.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(p.backend.bucket),
+		Key:    aws.String(p.Key),
+		Range:  aws.String(rangeHeader),
+	})
+	if err != nil {
+		return nil, 0, "", err
+	}
+
+	return obj.Body, *obj.ContentLength, *obj.ContentRange, nil
+}

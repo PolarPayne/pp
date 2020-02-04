@@ -2,8 +2,6 @@
 Private Podcast is a simple application to serve podcast episodes from a S3 bucket with Google login.
 
 ## TODO
-Add support for `Range` headers for podcasts so the audio player works correctly in Chrome.
-
 There is need for some proper refactoring, now everything is just a big hot messy pile that works.
 Some number of tests should also be written, but this requires the refactoring to be done (for the most part anyways).
 
