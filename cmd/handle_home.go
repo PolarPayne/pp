@@ -68,7 +68,7 @@ var tmpl = `
 	<p>This URL should work with pretty much any podcast application that supports custom URLs, just <span class="alert">DON'T SHARE IT</span></p>
 	{{ end }}
 
-	<p>If you're having technical problems please see
+	<p>If you're having technical problems please
 	{{ if .Help }}
 		{{ .Help }}
 	{{ else }}
