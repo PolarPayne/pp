@@ -87,7 +87,7 @@ var tmpl = `
 			.then(() => console.log("Copied text succesfully!"))
 			.catch(() => alert("Unable to copy to clipboard. :("));
 		} catch (err) {
-			alert("Unable to copy to clipboard. :(");
+			alert("Unable to copy to clipboard. :(\nYou'll need to manually copy the URL.");
 		}
 	}
 	</script>
