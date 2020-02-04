@@ -27,8 +27,26 @@ func (s StoragePostgres) Init() error {
 		user_id    TEXT UNIQUE NOT NULL,
 		secret     TEXT UNIQUE NOT NULL,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)`)
+
+	if err == nil {
+		_, err = s.db.Exec(`CREATE TABLE IF NOT EXISTS log_feed (
+			secret     TEXT NOT NULL,
+			referer    TEXT NOT NULL,
+			user_agent TEXT NOT NULL,
+			timestamp  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)`)
+	}
+
+	if err == nil {
+		_, err = s.db.Exec(`CREATE TABLE IF NOT EXISTS log_podcast (
+			secret     TEXT NOT NULL,
+			key        TEXT NOT NULL,
+			referer    TEXT NOT NULL,
+			user_agent TEXT NOT NULL,
+			timestamp  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)`)
+	}
+
 	if err != nil {
-		log.Fatalf("failed to create table(s) in db: %v", err)
+		return fmt.Errorf("failed to create table(s) in db: %v", err)
 	}
 
 	log.Print("created tables in the database")
@@ -70,4 +88,28 @@ func (s StoragePostgres) ValidSecret(secret string) (bool, error) {
 
 	log.Printf("fetched the secret of user %q from the db", userID)
 	return true, nil
+}
+
+func (s StoragePostgres) LogFeed(secret, referer, userAgent string) error {
+	_, err := s.db.Exec(
+		`INSERT INTO log_feed (secret, referer, user_agent)
+		VALUES ($1, $2, $3)`,
+		secret, referer, userAgent)
+	if err != nil {
+		return fmt.Errorf("failed to insert into db: %v", err)
+	}
+
+	return nil
+}
+
+func (s StoragePostgres) LogPodcast(secret, key, referer, userAgent string) error {
+	_, err := s.db.Exec(
+		`INSERT INTO log_podcast (secret, key, referer, user_agent)
+		VALUES ($1, $2, $3, $4)`,
+		secret, key, referer, userAgent)
+	if err != nil {
+		return fmt.Errorf("failed to insert into db: %v", err)
+	}
+
+	return nil
 }

@@ -69,6 +69,12 @@ func (s *server) handleFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err := s.storage.LogFeed(secret, r.Referer(), r.UserAgent())
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
 	now := time.Now()
 
 	feed := podcast.New(s.name, s.baseURL, s.description, nil, &now)
@@ -93,19 +99,25 @@ func (s *server) handleFeed(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	err := feed.Encode(w)
+	err = feed.Encode(w)
 	if err != nil {
 		log.Printf("failed to write feed to response: %v", err)
 	}
 }
 
 func (s *server) handlePodcast(w http.ResponseWriter, r *http.Request) {
-	_, ok := s.handleSecret(w, r)
+	secret, ok := s.handleSecret(w, r)
 	if !ok {
 		return
 	}
 
 	name := r.URL.Query().Get("n")
+
+	err := s.storage.LogPodcast(secret, name, r.Referer(), r.UserAgent())
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
 
 	for _, podcast := range s.getPodcasts() {
 		if podcast.Details().Key == name {

@@ -10,7 +10,8 @@ type Storage interface {
 	Init() error
 	CreateUser(userID string) (string, error)
 	ValidSecret(secret string) (bool, error)
-	// LogAudit(secret, referer, userAgent string) error
+	LogFeed(secret, referer, userAgent string) error
+	LogPodcast(secret, key, referer, userAgent string) error
 }
 
 // SecretSizeBytes is the size of the secret in bytes, it should be a multiple of 12 to make sure it's encoded nicely in base64.
