@@ -30,6 +30,7 @@ func (s *server) handleFeed() http.HandlerFunc {
 		now := time.Now()
 
 		feed := podcast.New(s.name, s.baseURL, s.description, nil, &now)
+		feed.IBlock = "yes"
 		feed.Image = &podcast.Image{URL: s.baseURL + "/logo"}
 		for _, p := range s.getPodcasts() {
 			if now.Before(p.Published) {

@@ -56,7 +56,13 @@ func (s *server) handleAuth() http.HandlerFunc {
 			return
 		}
 
-		http.SetCookie(w, &http.Cookie{Name: "podcast_session", Value: secret})
+		http.SetCookie(w, &http.Cookie{
+			Name:     "podcast_session",
+			Value:    secret,
+			Secure:   true,
+			HttpOnly: true,
+			SameSite: http.SameSiteStrictMode,
+		})
 		http.Redirect(w, r, "/", 302)
 	}
 }
