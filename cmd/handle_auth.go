@@ -61,7 +61,7 @@ func (s *server) handleAuth() http.HandlerFunc {
 			Value:    secret,
 			Secure:   true,
 			HttpOnly: true,
-			SameSite: http.SameSiteStrictMode,
+			SameSite: http.SameSiteLaxMode,
 		})
 		http.Redirect(w, r, "/", 302)
 	}
