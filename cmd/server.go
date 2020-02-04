@@ -21,7 +21,7 @@ func (a podcastList) Less(i, j int) bool {
 	if a[i].Published.Equal(a[j].Published) {
 		return a[i].Title < a[i].Title
 	}
-	return a[i].Published.Before(a[j].Published)
+	return a[j].Published.Before(a[i].Published)
 }
 
 type server struct {
