@@ -44,6 +44,7 @@ var tmpl = `
 
 		.url {
 			font-family: monospace;
+			overflow-x: auto;
 		}
 	</style>
 </head>
@@ -61,7 +62,8 @@ var tmpl = `
 	<p class="description">{{ .Description }}</p>
 
 	<p>The following URL is your private podcast feed. <span class="alert">DO NOT SHARE IT WITH ANYONE.</span> We track all requests.</p>
-	<p class="url">{{ .FeedURL }}</code>
+	<p class="url copytext">{{ .FeedURL }}</p>
+	<button onclick="copyText('.copytext')">copy link</button>
 	<p>This URL should work with pretty much any podcast application that supports custom URLs, just <span class="alert">DON'T SHARE IT</span></p>
 	{{ end }}
 
@@ -74,6 +76,20 @@ var tmpl = `
 	</p>
 
 	</div>
+
+	<script>
+	function copyText(el) {
+		var copyTextArea = document.querySelector(el);
+
+		try {
+			navigator.clipboard.writeText(copyTextArea.innerText)
+			.then(() => console.log("Copied text succesfully!"))
+			.catch(() => alert("Unable to copy to clipboard. :("));
+		} catch (err) {
+			alert("Unable to copy to clipboard. :(");
+		}
+	}
+	</script>
 </body>
 `
 
