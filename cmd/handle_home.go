@@ -150,11 +150,13 @@ func (s *server) handleHome() http.HandlerFunc {
 		}
 		podcasts := make([]p, 0)
 		for _, podcast := range s.getPodcasts() {
+			pd := podcast.Details()
+
 			q = url.Values{}
 			q.Set("s", secret)
-			q.Set("n", podcast.Key)
+			q.Set("n", pd.Key)
 			pURL := s.baseURL + "/podcast?" + q.Encode()
-			podcasts = append(podcasts, p{podcast.Title, pURL, podcast.Published.Format("2006-01-02")})
+			podcasts = append(podcasts, p{pd.Title, pURL, pd.Published.Format("2006-01-02")})
 		}
 
 		err = tmplCompiled.Execute(w, struct {

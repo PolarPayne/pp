@@ -2,12 +2,12 @@
 Private Podcast is a simple application to serve podcast episodes from a S3 bucket with Google login.
 
 ## TODO
-There is need for some proper refactoring, now everything is just a big hot messy pile that works.
-Some number of tests should also be written, but this requires the refactoring to be done (for the most part anyways).
+* write to storage whenever a secret is being used
 
-Before refactoring, access table should be added to the database that just logs all accessees to URLs so it's possible to track the potential misuse of the URLs.
-
-Future ideas: support uploading of new episodes from the homepage, add simple statistics on how many users have generated their URLs, and on general downloads.
+### Features
+* support revoking of secrets
+* support uploading of new episodes from the homepage
+* add simple analytics from the access logs
 
 ## Building and Running
 If you have the latest go toolchain installed running `go build ./cmd` should be enough.

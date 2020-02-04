@@ -1,16 +1,41 @@
-package main
+package pp
 
 import (
 	"database/sql"
-	"encoding/base64"
 	"fmt"
 	"log"
-	"math/rand"
+
+	// pq is used through database/sql by StoragePostgres
+	_ "github.com/lib/pq"
 )
 
-const secretSize = 36
+type StoragePostgres struct {
+	db *sql.DB
+}
 
-func (s *server) createUser(userID string) (string, error) {
+func NewStoragePostgres(connectionString string) (StoragePostgres, error) {
+	db, err := sql.Open("postgres", connectionString)
+	if err != nil {
+		return StoragePostgres{}, err
+	}
+
+	return StoragePostgres{db}, nil
+}
+
+func (s StoragePostgres) Init() error {
+	_, err := s.db.Exec(`CREATE TABLE IF NOT EXISTS users (
+		user_id    TEXT UNIQUE NOT NULL,
+		secret     TEXT UNIQUE NOT NULL,
+		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP)`)
+	if err != nil {
+		log.Fatalf("failed to create table(s) in db: %v", err)
+	}
+
+	log.Print("created tables in the database")
+	return nil
+}
+
+func (s StoragePostgres) CreateUser(userID string) (string, error) {
 	var secret string
 
 	// if a user with the given userID already exists return that users secret
@@ -21,16 +46,7 @@ func (s *server) createUser(userID string) (string, error) {
 		return secret, nil
 	}
 
-	v := make([]byte, secretSize)
-	n, err := rand.Read(v)
-	if err != nil {
-		return "", err
-	}
-	if n != secretSize {
-		return "", fmt.Errorf("failed to read %v random bytes, only %v read", secretSize, n)
-	}
-
-	secret = base64.URLEncoding.EncodeToString(v)
+	secret = GenerateSecret()
 
 	_, err = s.db.Exec(`INSERT INTO users (user_id, secret) VALUES ($1, $2)`, userID, secret)
 	if err != nil {
@@ -40,7 +56,7 @@ func (s *server) createUser(userID string) (string, error) {
 	return secret, nil
 }
 
-func (s *server) validSecret(secret string) (bool, error) {
+func (s StoragePostgres) ValidSecret(secret string) (bool, error) {
 	var userID string
 
 	err := s.db.QueryRow(`SELECT user_id FROM users WHERE secret = $1`, secret).Scan(&userID)
