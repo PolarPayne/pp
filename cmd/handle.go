@@ -57,7 +57,7 @@ func (s *server) handleLogo(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *server) handleAuth(w http.ResponseWriter, r *http.Request) {
-	err := s.auth.HandleAuth(w, r, s.storage)
+	err := s.auth.HandleAuth(w, r, s.storage, *flagNoSecureCookie)
 	if err != nil {
 		s.handleError(w, r, err)
 	}

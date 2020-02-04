@@ -30,6 +30,12 @@ var tmpl = `
 			width: 100%;
 		}
 
+		.logo {
+			float: left;
+			margin-right: 1rem;
+			max-width: 100px;
+		}
+
 		.content {
 			background: white;
 			max-width: 80em;
@@ -63,8 +69,11 @@ var tmpl = `
 {{ end }}
 
 {{ if not .NotLoggedIn }}
-	<h1>{{ .Name }}</h1>
-	<p class="description">{{ .Description }}</p>
+	<div class="top">
+		<img src="/logo" class="logo">
+		<h1>{{ .Name }}</h1>
+		<p class="description">{{ .Description }}</p>
+	</div>
 
 	<p>The following URL is your private podcast feed. <span class="alert">DO NOT SHARE IT WITH ANYONE.</span> We track all requests.</p>
 	<p class="url copytext">{{ .FeedURL }}</p>

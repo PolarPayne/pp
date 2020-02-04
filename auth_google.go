@@ -11,7 +11,6 @@ import (
 )
 
 type googleUserinfo struct {
-	ID    string
 	Email string
 }
 
@@ -19,8 +18,8 @@ type AuthGoogle struct {
 	oauth *oauth2.Config
 }
 
-func NewAuthGoogle(clientID, clientSecret, authURL string) *AuthGoogle {
-	return &AuthGoogle{&oauth2.Config{
+func NewAuthGoogle(clientID, clientSecret, authURL string) AuthGoogle {
+	return AuthGoogle{&oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		RedirectURL:  authURL,
@@ -31,7 +30,7 @@ func NewAuthGoogle(clientID, clientSecret, authURL string) *AuthGoogle {
 	}}
 }
 
-func (a AuthGoogle) HandleAuth(w http.ResponseWriter, r *http.Request, storage Storage) error {
+func (a AuthGoogle) HandleAuth(w http.ResponseWriter, r *http.Request, storage Storage, noSecureCookie bool) error {
 	q := r.URL.Query()
 	code := q.Get("code")
 
@@ -41,6 +40,8 @@ func (a AuthGoogle) HandleAuth(w http.ResponseWriter, r *http.Request, storage S
 		http.Redirect(w, r, url, 302)
 		return nil
 	}
+
+	log.Print("exchanging auth code")
 
 	tok, err := a.oauth.Exchange(r.Context(), code)
 	if err != nil {
@@ -70,7 +71,7 @@ func (a AuthGoogle) HandleAuth(w http.ResponseWriter, r *http.Request, storage S
 	http.SetCookie(w, &http.Cookie{
 		Name:     "podcast_session",
 		Value:    secret,
-		Secure:   true,
+		Secure:   !noSecureCookie,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
