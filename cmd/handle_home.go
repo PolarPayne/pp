@@ -60,7 +60,7 @@ var tmpl = `
 		.url {
 			font-family: monospace;
 			overflow-x: auto;
-			margin-left: 1rem;
+			padding: 0.2rem;
 		}
 
 		.podcast {
@@ -97,7 +97,7 @@ var tmpl = `
 	<hr>
 
 	<p>The following URL is your private podcast feed. <span class="alert">DO NOT SHARE IT WITH ANYONE.</span> We track all requests.</p>
-	<p><button onclick="copyText('.copytext')">copy link</button><a href="{{ .FeedURL }}" class="url copytext">{{ .FeedURL }}</a></p>
+	<p><a href="{{ .FeedURL }}" class="url copytext">{{ .FeedURL }}</a></p>
 	<p>This URL should work with pretty much any podcast application that supports custom URLs (at least <a href="https://www.videolan.org/vlc/">VLC</a> and <a href="https://overcast.fm/">Overcast</a> are known to work), just <span class="alert">DON'T SHARE IT</span>.</p>
 
 	<hr>
@@ -125,20 +125,6 @@ var tmpl = `
 	</p>
 
 	</div>
-
-	<script>
-	function copyText(el) {
-		var copyTextArea = document.querySelector(el);
-
-		try {
-			navigator.clipboard.writeText(copyTextArea.innerText)
-			.then(() => console.log("Copied text succesfully!"))
-			.catch(() => alert("Unable to copy to clipboard. :("));
-		} catch (err) {
-			alert("Unable to copy to clipboard. :(\nYou'll need to manually copy the URL.");
-		}
-	}
-	</script>
 </body>
 `
 
