@@ -161,12 +161,12 @@ func (s *server) handleHome() http.HandlerFunc {
 
 		switch action {
 		case "login":
-			http.Redirect(w, r, "/auth", 302)
+			http.Redirect(w, r, "/auth", http.StatusTemporaryRedirect)
 			return
 
 		case "logout":
 			http.SetCookie(w, &http.Cookie{Name: "podcast_session", MaxAge: -1})
-			http.Redirect(w, r, "/", 302)
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
 

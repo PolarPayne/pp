@@ -18,7 +18,7 @@ import (
 // and are completely harmless.
 func (s *server) handleError(w http.ResponseWriter, r *http.Request, err error) {
 	log.Printf("internal server error when handling a request to %q: %v", r.URL.EscapedPath(), err)
-	w.WriteHeader(500)
+	w.WriteHeader(http.StatusInternalServerError)
 }
 
 func (s *server) handleHTTPToHTTPS(f http.HandlerFunc) http.HandlerFunc {
@@ -27,7 +27,7 @@ func (s *server) handleHTTPToHTTPS(f http.HandlerFunc) http.HandlerFunc {
 		if forwardedProto == "http" && strings.HasPrefix(s.baseURL, "https") {
 			log.Printf("request with X-Forwarded-Proto equal to HTTP and base URL is a HTTPS URL, redirecting user to HTTPS")
 			url := s.baseURL + r.URL.String()
-			http.Redirect(w, r, url, 301)
+			http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 			return
 		}
 
@@ -50,7 +50,7 @@ func (s *server) handleSecret(w http.ResponseWriter, r *http.Request) (string, b
 	}
 	if !ok {
 		log.Printf("invalid secret %q when trying to access feed", secret)
-		w.WriteHeader(403)
+		w.WriteHeader(http.StatusForbidden)
 		return "", false
 	}
 
@@ -151,5 +151,5 @@ func (s *server) handlePodcast(w http.ResponseWriter, r *http.Request) {
 
 	// 403 would already be written if the user doesn't have access
 	// therefore we aren't leaking any information
-	w.WriteHeader(404)
+	w.WriteHeader(http.StatusNotFound)
 }

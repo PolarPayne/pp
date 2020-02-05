@@ -37,7 +37,7 @@ func (a AuthGoogle) HandleAuth(w http.ResponseWriter, r *http.Request, storage S
 	if code == "" {
 		log.Printf("auth code is not set, redirecting user to authentication")
 		url := a.oauth.AuthCodeURL("state")
-		http.Redirect(w, r, url, 302)
+		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return nil
 	}
 
@@ -75,7 +75,7 @@ func (a AuthGoogle) HandleAuth(w http.ResponseWriter, r *http.Request, storage S
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
-	http.Redirect(w, r, "/", 302)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 
 	return nil
 }

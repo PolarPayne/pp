@@ -124,7 +124,7 @@ func (p PodcastS3) handleRangeHeader(w http.ResponseWriter, r *http.Request, ran
 	w.Header().Set("Content-Length", strconv.FormatInt(*contentLength, 10))
 	w.Header().Set("Content-Range", *contentRange)
 
-	w.WriteHeader(206)
+	w.WriteHeader(http.StatusPartialContent)
 	n, err := io.Copy(w, obj.Body)
 	if err != nil {
 		return fmt.Errorf("failed to copy %v bytes of content to response: %v", n, err)
