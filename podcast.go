@@ -11,8 +11,9 @@ type Podcast interface {
 }
 
 type PodcastDetails struct {
-	Key       string
-	Title     string
-	Published time.Time
-	Size      int64
+	Key         string
+	Title       string
+	Published   time.Time
+	Size        int64
+	Description string
 }

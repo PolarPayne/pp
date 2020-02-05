@@ -23,12 +23,16 @@ var tmpl = `
 
 	<style>
 		body {
-			background: #ccc;
+			background: #eee;
 			font-family: sans-serif;
 		}
 
 		audio {
 			width: 100%;
+		}
+
+		hr {
+			margin: 2rem 0;
 		}
 
 		.logo {
@@ -39,14 +43,13 @@ var tmpl = `
 
 		.content {
 			background: white;
-			max-width: 80em;
+			max-width: 40rem;
 			margin: 1rem auto;
 			padding: 1rem;
 			border: 2px solid black;
 		}
 
 		.description {
-			margin-bottom: 4rem;
 		}
 
 		.alert {
@@ -58,6 +61,20 @@ var tmpl = `
 			font-family: monospace;
 			overflow-x: auto;
 			margin-left: 1rem;
+		}
+
+		.podcast {
+			margin-top: 2rem;
+		}
+
+		.podcast-description {
+			margin: 0;
+		}
+
+		.footer {
+			font-size: 75%;
+			margin-top: 2rem;
+			margin-bottom: -1rem;
 		}
 	</style>
 </head>
@@ -77,6 +94,8 @@ var tmpl = `
 		<p class="description">{{ .Description }}</p>
 	</div>
 
+	<hr>
+
 	<p>The following URL is your private podcast feed. <span class="alert">DO NOT SHARE IT WITH ANYONE.</span> We track all requests.</p>
 	<p><button onclick="copyText('.copytext')">copy link</button><a href="{{ .FeedURL }}" class="url copytext">{{ .FeedURL }}</a></p>
 	<p>This URL should work with pretty much any podcast application that supports custom URLs (at least <a href="https://www.videolan.org/vlc/">VLC</a> and <a href="https://overcast.fm/">Overcast</a> are known to work), just <span class="alert">DON'T SHARE IT</span>.</p>
@@ -89,14 +108,15 @@ var tmpl = `
 	<div class="podcast">
 		<h3>{{ .Title }} ({{ .Published }})</h3>
 		<audio controls src="{{ .URL }}">Your browser does not support the <code>audio</code> element.</audio>
+		{{ if .Description }}
+		<p class="podcast-description">{{ .Description }}</p>
+		{{ end }}
 	</div>
 	{{ end }}
 
 {{ end }}
 
-	<hr>
-
-	<p>If you're having technical problems please
+	<p class="footer">If you're having technical problems please
 	{{ if .Help }}
 		{{ .Help }}
 	{{ else }}
@@ -155,8 +175,10 @@ func (s *server) handleHome() http.HandlerFunc {
 		feedURL := s.baseURL + "/feed?" + q.Encode()
 
 		type p struct {
-			Title, URL string
-			Published  string
+			Title       string
+			Description string
+			URL         string
+			Published   string
 		}
 		podcasts := make([]p, 0)
 		for _, podcast := range s.getPodcasts() {
@@ -166,7 +188,7 @@ func (s *server) handleHome() http.HandlerFunc {
 			q.Set("s", secret)
 			q.Set("n", pd.Key)
 			pURL := s.baseURL + "/podcast?" + q.Encode()
-			podcasts = append(podcasts, p{pd.Title, pURL, pd.Published.Format("2006-01-02")})
+			podcasts = append(podcasts, p{pd.Title, pd.Description, pURL, pd.Published.Format("2006-01-02")})
 		}
 
 		err = tmplCompiled.Execute(w, struct {

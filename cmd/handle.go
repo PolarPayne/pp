@@ -87,9 +87,14 @@ func (s *server) handleFeed(w http.ResponseWriter, r *http.Request) {
 		q.Set("s", secret)
 		q.Set("n", pd.Key)
 
+		description := pd.Description
+		if description == "" {
+			description = pd.Title
+		}
+
 		feed.AddItem(podcast.Item{
 			Title:       pd.Title,
-			Description: pd.Title,
+			Description: description,
 			PubDate:     &pd.Published,
 			Enclosure: &podcast.Enclosure{
 				Length: pd.Size,

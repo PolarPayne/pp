@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -41,11 +42,12 @@ func splitTitle(name string) (time.Time, string, error) {
 }
 
 type PodcastS3 struct {
-	backend   *BackendS3
-	key       string
-	size      int64
-	published time.Time
-	title     string
+	backend     *BackendS3
+	key         string
+	size        int64
+	published   time.Time
+	title       string
+	description string
 }
 
 func newPodcastS3(backend *BackendS3, key string, size *int64) (Podcast, error) {
@@ -58,15 +60,34 @@ func newPodcastS3(backend *BackendS3, key string, size *int64) (Podcast, error) 
 		return PodcastS3{}, err
 	}
 
-	return PodcastS3{backend, key, *size, published, title}, nil
+	descriptionKey := key + ".txt"
+	var description string
+	obj, err := backend.s3.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(backend.bucket),
+		Key:    aws.String(descriptionKey),
+	})
+	if err == nil {
+		defer obj.Body.Close()
+		desc, err := ioutil.ReadAll(obj.Body)
+		if err == nil {
+			description = string(desc)
+		} else {
+			log.Printf("failed to read description of PodcastS3 key=%q: %v", descriptionKey, err)
+		}
+	} else {
+		log.Printf("failed to get description of PodcastS3 key=%q: %v", descriptionKey, err)
+	}
+
+	return PodcastS3{backend, key, *size, published, title, description}, nil
 }
 
 func (p PodcastS3) Details() PodcastDetails {
 	return PodcastDetails{
-		Key:       p.key,
-		Title:     p.title,
-		Published: p.published,
-		Size:      p.size,
+		Key:         p.key,
+		Title:       p.title,
+		Published:   p.published,
+		Size:        p.size,
+		Description: p.description,
 	}
 }
 
