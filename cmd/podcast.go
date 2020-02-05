@@ -18,7 +18,7 @@ func (a podcastList) Less(i, j int) bool {
 	if lhs.Published.Equal(rhs.Published) {
 		return lhs.Title < rhs.Title
 	}
-	return lhs.Published.Before(rhs.Published)
+	return rhs.Published.Before(lhs.Published)
 }
 
 func (s *server) updatePodcasts() error {
