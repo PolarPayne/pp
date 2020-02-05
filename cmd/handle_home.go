@@ -74,7 +74,7 @@ var tmpl = `
 		.footer {
 			font-size: 75%;
 			margin-top: 2rem;
-			margin-bottom: -1rem;
+			margin-bottom: -0.5rem;
 		}
 	</style>
 </head>
