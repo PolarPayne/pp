@@ -97,7 +97,7 @@ var tmpl = `
 	<hr>
 
 	<p>The following URL is your private podcast feed. <span class="alert">DO NOT SHARE IT WITH ANYONE.</span> We track all requests.</p>
-	<p><a href="{{ .FeedURL }}" class="url copytext">{{ .FeedURL }}</a></p>
+	<p class="url"><a href="{{ .FeedURL }}">{{ .FeedURL }}</a></p>
 	<p>This URL should work with pretty much any podcast application that supports custom URLs (at least <a href="https://www.videolan.org/vlc/">VLC</a> and <a href="https://overcast.fm/">Overcast</a> are known to work), just <span class="alert">DON'T SHARE IT</span>.</p>
 
 	<hr>
