@@ -38,15 +38,15 @@ func newServer(baseURL, name, description, helpText string, backend pp.Backend, 
 
 	out.mux = http.NewServeMux()
 
-	out.mux.HandleFunc("/", out.handleHome())
+	out.mux.HandleFunc("/", out.handleHTTPToHTTPS(out.handleHome()))
 
-	out.mux.HandleFunc("/logo", out.handleLogo)
-	out.mux.HandleFunc("/favicon.ico", out.handleLogo)
+	out.mux.HandleFunc("/logo", out.handleHTTPToHTTPS(out.handleLogo))
+	out.mux.HandleFunc("/favicon.ico", out.handleHTTPToHTTPS(out.handleLogo))
 
-	out.mux.HandleFunc("/auth", out.handleAuth)
+	out.mux.HandleFunc("/auth", out.handleHTTPToHTTPS(out.handleAuth))
 
-	out.mux.HandleFunc("/feed", out.handleFeed)
-	out.mux.HandleFunc("/podcast", out.handlePodcast)
+	out.mux.HandleFunc("/feed", out.handleHTTPToHTTPS(out.handleFeed))
+	out.mux.HandleFunc("/podcast", out.handleHTTPToHTTPS(out.handlePodcast))
 
 	return out
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/eduncan911/podcast"
@@ -18,6 +19,20 @@ import (
 func (s *server) handleError(w http.ResponseWriter, r *http.Request, err error) {
 	log.Printf("internal server error when handling a request to %q: %v", r.URL.EscapedPath(), err)
 	w.WriteHeader(500)
+}
+
+func (s *server) handleHTTPToHTTPS(f http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		forwardedProto := r.Header.Get("X-Forwarded-Proto")
+		if forwardedProto == "http" && strings.HasPrefix(s.baseURL, "https") {
+			log.Printf("request with X-Forwarded-Proto equal to HTTP and base URL is a HTTPS URL, redirecting user to HTTPS")
+			url := s.baseURL + r.URL.String()
+			http.Redirect(w, r, url, 301)
+			return
+		}
+
+		f(w, r)
+	}
 }
 
 // handleSecret returns true if and only if the secret is valid, if handleSecret returns false
