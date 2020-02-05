@@ -60,6 +60,20 @@ func newPodcastS3(backend *BackendS3, key string, size *int64) (Podcast, error) 
 		return PodcastS3{}, err
 	}
 
+	head, err := backend.s3.HeadObject(&s3.HeadObjectInput{
+		Bucket: aws.String(backend.bucket),
+		Key:    aws.String(key),
+	})
+	if err == nil {
+		v, ok := head.Metadata["Title"]
+		if ok && v != nil {
+			log.Printf("rewriting title with the value of x-amz-meta-title %q", *v)
+			title = *v
+		}
+	} else {
+		log.Printf("failed to get metadata of PodcastS3 key=%q: %v", key, err)
+	}
+
 	descriptionKey := key + ".txt"
 	var description string
 	obj, err := backend.s3.GetObject(&s3.GetObjectInput{
