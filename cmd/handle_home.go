@@ -50,6 +50,7 @@ var tmpl = `
 		}
 
 		.description {
+			white-space: pre-line;
 		}
 
 		.alert {
@@ -68,6 +69,7 @@ var tmpl = `
 		}
 
 		.podcast-description {
+			white-space: pre-line;
 			margin: 0;
 		}
 
