@@ -1,11 +1,6 @@
 # Private Podcast (pp)
 Private Podcast is a simple application to serve podcast episodes from a S3 bucket with Google login.
 
-## TODO
-* support revoking of secrets
-* support uploading of new episodes from the homepage
-* add simple analytics from the access logs
-
 ## Building and Running
 If you have the latest go toolchain installed running `go build ./cmd` should be enough.
 To run the application you'll need to set the AWS environmental variables in addition to the configuration provided and documented on the CLI (see [cmd/main.go](cmd/main.go) for the variables and their documentation). The AWS variables that are usually needed are `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, the region should be the region of the S3 bucket.
