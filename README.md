@@ -15,3 +15,23 @@ All podcasts in the S3 bucket should be placed in the root, have a `.mp3` prefix
 For example, a file named `2020-01-27 Hello World!.mp3` will be parsed as podcast episode that was released on the 27th of January in 2020, with a title and description of `Hello World!`. All files which can't be parsed are skipped.
 
 To add a description to a podcast, another file can be added with `.txt` suffix. It's name must otherwise be exactly equal, e.g. in the example above the file would be named `2020-01-27 Hello World!.mp3.txt`.
+
+## License
+
+```
+pp - Private Podcast feed with Single Sign-On
+Copyright (C) 2020  Maximilian Remming
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+```
